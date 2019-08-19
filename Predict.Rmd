@@ -1,0 +1,181 @@
+---
+title: "Predict ER"
+author: "Bryan Routledge"
+date: "8/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load the data ... 
+This also makes the "target" Return and St.dev for the next 12 months
+
+```{r }
+setwd("/Users/rout/Desktop/Dropbox/2019m6-46892-MSBA-fin/RCode/Assign6") 
+source("Main.A6.R")
+
+```
+
+# Make some Forecasts and Some Plots 
+This is in *RunsForClass.R* 
+
+First -- Lets preduct some Expected Returns (12 month horison)
+
+My parameter *Interesting* is selecting a lambda regularizer parameter.
+I did this by picking from the st.dev of the forecast.  If you set
+the regularizer to really big, the st.dev of the forecast goes to zero.
+I am using my *prior* that the variation in E[R] should not be zero and not too big
+
+```{r echo=TRUE}
+ER<-"E[R| date t]"
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market"),
+		use=c("CONSTANT","DPratio"),
+		Interesting=c(0.5)   
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="DP Ratio")
+print(p)
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","DPratio"),
+		Interesting=c(0.5)   
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="DP Ratio")
+print(p)
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","PDratio","gaip","recession","CreditSpread","TermSpreadL","unrate"),
+		Interesting=c(0.05)
+		)
+
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="DP Ratio,int rate, unemployment")		
+print(p)
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("inflation","unrate"), # Growth IP 
+		Interesting=c(0.05)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="inflation,unemployment")
+print(p)
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","recession"), # Growth IP 
+		Interesting=c(0.05)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="Just nber recession {1,0}")
+print(p)
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("FEDFUNDS","TermSpreadS","TermSpreadL", "CreditSpread"), # Growth IP 
+		Interesting=c(0.05)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="just interest rates")
+print(p)
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("gaip","gacr"), # Growth IP 
+		Interesting=c(0.1)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="recent growth")
+print(p)
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=colnames(P[,grepl("ga",colnames(P))]), # Growth IP 
+		Interesting=c(0.01)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="recent growth (many)")	
+print(p)
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=colnames(P[,-c(1:3)]), # EVERYTHING
+		Interesting=c(0.01)
+		)
+p<-Plot.Forecast(z,clip=c(0.01,.2),target=ER,title="Everything")		
+print(p)
+
+
+```
+
+# Predict Volatility
+
+This is predicting the volatility over the next 12 months.  I calcualted this as V= sum(eR^2) - (average eR)^2. then sigma=sqrt(V).  there are other ways to define this.  
+
+In general volatility is more predictible
+
+```{r echo=TRUE}
+
+VR<-"sigma[R| date t]"
+
+z<- Forecast(
+		D=Data,
+		what=c("Market"),
+		use=c("CONSTANT","DPratio"),
+		Interesting=c(0.1,0.25,0.5,0.75,.9),
+		LHS="V"
+		)
+Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="DP Ratio (several lambda)",h=sqrt(12),highlight="")
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","DPratio"),
+		Interesting=c(0.5),
+		LHS="V"
+		)
+Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="DP Ratio",h=sqrt(12))
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","recession"), # Growth IP 
+		Interesting=c(0.5),
+		LHS="V"
+		)
+Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="recession",h=sqrt(12))
+
+z<- Forecast(
+		D=Data,
+		what=c("Market","Rtail", "Util",  "Oil"),
+		use=c("CONSTANT","recession"), # Growth IP 
+		Interesting=c(0.5),
+		LHS="V"
+		)
+Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="recession",h=sqrt(12))
+
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=colnames(P[,-c(1:3)]), # EVERYTHING
+		Interesting=c(0.01),
+		LHS="V"
+		)
+Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="Everything",h=sqrt(12))
+	
+
+```
