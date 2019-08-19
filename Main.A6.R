@@ -25,7 +25,7 @@ library("broom")
 
 # a few libs for this project
 source("misc_lib.R")
-source("bryan_lib.R")
+source("/Users/rout/Desktop/Dropbox/R_lib/bryan_lib.R")
 source("forecast_lib.R")
 
 Verbose<-FALSE # controls some printing
@@ -98,6 +98,27 @@ Vol.h<-data.frame(sqrt(Vol.h))
 colnames(Vol.h)<-gsub("eR_","Vol.tplush.",colnames(Vol.h))
 Vol.h.ANNUAL <- Vol.h * sqrt(12)  # VARIANCE linear in time.
 Data<-cbind(Data,Vol.h)
+
+# DO I have sharpie here? ER/Vol ought to do it
+
+Sharpe.h<-R.h/Vol.h
+colnames(Sharpe.h)<-colnames(R.h)
+colnames(Sharpe.h)<-gsub("R.tplush.","Sharpe.tplush.",colnames(Sharpe.h))
+Data<-cbind(Data,Sharpe.h)
+
+
+
+if (Verbose){
+	SUM<-data.frame(
+	cbind(mean=t(t(colMeans(R.h,na.rm=TRUE)*12)),
+		std=t(t(colMeans(Vol.h,na.rm=TRUE)*sqrt(12))),
+		sharpe=t(t(colMeans(Sharpe.h,na.rm=TRUE)*sqrt(12)))
+		)
+	)
+	colnames(SUM)<-c("mean","std","sharpe")
+	print(SUM)
+}
+
 
 #x<-cumsum((Data[,grepl("eR_Market",colnames(Data))])^2)
 #v<-(lead(x,n=horizon) - x )/horizon  -mean(Data[,grepl("eR_Market",colnames(Data))])

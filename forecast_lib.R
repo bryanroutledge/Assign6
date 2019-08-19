@@ -23,6 +23,10 @@ Forecast <- function(
 		if (LHS == "V"){
 			y<-D[TRAIN,	grepl(paste(c("Vol.tplush.*",i),collapse=""),colnames(D),perl=TRUE)]	
 		}
+		if (LHS == "S"){
+			y<-D[TRAIN,	grepl(paste(c("Sharpe.tplush.*",i),collapse=""),colnames(D),perl=TRUE)]	
+		}
+		
 					
 		print(paste(c(LHS,":",i),collapse=""))
 		if(Verbose){	

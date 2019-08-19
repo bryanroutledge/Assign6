@@ -139,4 +139,25 @@ z<- Forecast(
 		)
 Plot.Forecast(z,clip=c(0.01,.25),target=VR,title="Everything",h=sqrt(12))
 	
+## SHARPE RATIO
+SR<-"Sharpe Ratio (annual)"
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","DPratio"),
+		Interesting=c(0.5),
+		LHS="S"
+		)
+Plot.Forecast(z,clip=c(-0.01,10),target=SR,title="DP Ratio",h=sqrt(12))
+
+z<- Forecast(
+		D=Data,
+		what=c("Market",Use.Industries),
+		use=c("CONSTANT","recession"), # Growth IP 
+		Interesting=c(0.5),
+		LHS="S"
+		)
+Plot.Forecast(z,clip=c(NA,NA),target=SR,title="recession",h=sqrt(12))
+	
+	
 
