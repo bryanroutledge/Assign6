@@ -6,7 +6,7 @@
 #setwd("/Users/rout/Desktop/Dropbox/2019m6-46892-MSBA-fin/RCode/Assign6")  # Set this as you like
 # Send graphics/plots to ....
 Gdir <-"./Graphics"   #  Graphics printed to local dir
-Aratio <- 1.5 # For my plots (1=square)
+Aratio <- 1.5 # For my plots (1=square) REMINDER
 
 
 # usuals
